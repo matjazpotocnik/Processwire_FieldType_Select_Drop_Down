@@ -1,0 +1,21 @@
+/**
+ * Select Fieldtype for Processwire
+ *
+ * This Fieldtype stores a list of values from which to choose via a <select> input field (AKA "Drop Down").
+ *
+ * For documentation about the fields used in this class, please see:
+ * /wire/core/Fieldtype.php
+ *
+ * Module by Hani AbuGhazaleh
+ * http://www.mmbarn.com
+ *
+ * Improvements suggested/provided by Adam Kiss, Ryan Cramer, & Nico
+ *
+ * ProcessWire 2.x
+ * Copyright (C) 2010 by Ryan Cramer
+ * Licensed under GNU/GPL v2, see LICENSE.TXT
+ *
+ * http://www.processwire.com
+ * http://www.ryancramer.com
+ *
+ */
