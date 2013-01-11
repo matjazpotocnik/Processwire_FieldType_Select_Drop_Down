@@ -1,21 +1,3 @@
-/**
- * Select Fieldtype for Processwire
- *
- * This Fieldtype stores a list of values from which to choose via a <select> input field (AKA "Drop Down").
- *
- * For documentation about the fields used in this class, please see:
- * /wire/core/Fieldtype.php
- *
- * Module by Hani AbuGhazaleh
- * http://www.mmbarn.com
- *
- * Improvements suggested/provided by Adam Kiss, Ryan Cramer, & Nico
- *
- * ProcessWire 2.x
- * Copyright (C) 2010 by Ryan Cramer
- * Licensed under GNU/GPL v2, see LICENSE.TXT
- *
- * http://www.processwire.com
- * http://www.ryancramer.com
- *
- */
+This ProcessWire module produces a drop down list (via a "select" input) that would allow you to define a list of options in the field's configuration from which to select a value.
+
+After installing, you'll have a new "Select" fieldtype that will allow you to define the items you'd like in the drop down. You'll be able to define these options in a text box on the field's configuration screen. Just put each option on it's own line.
