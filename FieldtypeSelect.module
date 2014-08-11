@@ -30,75 +30,84 @@ class FieldtypeSelect extends Fieldtype {
  * These default values will only appear when adding a new field from Setup > Fields
  * You will have the option to edit this list of options when configuring the field.
  * Typically, you won't need to define anything here, but I included the ability just in case someone
- *    has something specific they're trying to do.
- *    Example: array ('Excellent','Good','Fair','Poor')
+ * has something specific they're trying to do.
+ * Example: array ('Excellent','Good','Fair','Poor')
  */
-     public static $defaultOptionValues = array ();
+	public static $defaultOptionValues = array();
 
-     public static function getModuleInfo() {
-	  return array(
-	  'title' => 'Select (AKA Drop Down)',
-	  'version' => 100,
-	  'summary' => 'This Fieldtype stores a list of values from which to choose via a "select" input field.'
-	  );
-     }
+	public static function getModuleInfo() {
+		return array(
+		'title' => 'Select',
+		'version' => 120,
+		'summary' => 'This Fieldtype stores a list of values from which to choose via a "select" input field.'
+		);
+	}
 
-     public function getInputfield(Page $page, Field $field) {
+	public function getInputfield(Page $page, Field $fields) {
 
-	  $inputfield = $this->modules->get('InputfieldSelect');
-	  $inputfield->addOption(''); // blank or unselected option
-	  $options = explode("\n",$field->select_options);
-	  foreach($options as $option) {
-	       $valueLabel = explode(':=',$option);
-	       if (count($valueLabel) == 1) { // if option/label pair *not* provided
-		    $value = trim($valueLabel[0]);
-		    $label = NULL;
-	       } else if (count($valueLabel) == 2){ // if option/label pair provided
-		    $value = trim($valueLabel[0]);
-		    $label = trim($valueLabel[1]);
-	       }
-	       if ($value != '' && ($label != '' || $label == NULL)) {
-		    if(!strlen($value)) continue;
-		    $inputfield->addOption((string) trim($value),(string) trim($label));
-	       }
-	  }
-	  return $inputfield;
-     }
+		$inputfield = $this->modules->get('InputfieldSelect');
+		
+		// split options by line
+		$options = explode("\n",$fields->select_options);
 
-     public function getDatabaseSchema(Field $field) {
-	  $schema = parent::getDatabaseSchema($field);
-	  $schema['data'] = 'text NOT NULL';
-	  $schema['keys']['data_exact'] = 'KEY `data_exact` (`data`(255))';
-	  $schema['keys']['data'] = 'FULLTEXT KEY `data` (`data`)';
+		// add options to the input field
+		foreach($options as $option) {
+			$valueLabel = explode(':=',$option);
+			if (count($valueLabel) == 1) { // if option/label pair *not* provided
+				// use sanitized value as value because whitespaces and special characters are not allowed
+				$value = $this->sanitizer->name(trim($valueLabel[0])); 
+				// use given value as label
+				$label = trim($valueLabel[0]); 
+			} else if (count($valueLabel) == 2){ // if option/label pair provided
+				$value = trim($valueLabel[0]);
+				$label = trim($valueLabel[1]);
+			}
+			if ($value != '' && ($label != '' || $label == NULL)) {
+				if(!strlen($value)) continue;
+				$inputfield->addOption((string) trim($value),(string) trim($label));
+			}
+		}
+		
+		return $inputfield;
+	}
 
-	  return $schema;
-     }
+	public function getDatabaseSchema(Field $field) {
+		$schema = parent::getDatabaseSchema($field);
+		$schema['data'] = 'text NOT NULL';
+		$schema['keys']['data_exact'] = 'KEY `data_exact` (`data`(255))';
+		$schema['keys']['data'] = 'FULLTEXT KEY `data` (`data`)';
 
-     public function sanitizeValue(Page $page, Field $field, $value) {
+		return $schema;
+	 }
 
-	  // remove any leading/trailing whitespace
-	  $value = trim($value);
+	 public function sanitizeValue(Page $page, Field $field, $value) {
 
-	  // If value isn't present in the select_options string, surrounded by CRLFs or CRs then it's not valid.
-	  // We also allow for match at beginning/end of select_options, as well as optional spaces in the select_options string
-	  // before and after the CRLF/CR that separate the options in the string.
-	  if(!preg_match('/(^|[\r\n]) *' . preg_quote($value, '/') . ' *(:=|[\r\n]+|$)/', $field->select_options)) $value = '';
+		// remove any leading/trailing whitespace
+		$value = trim($value);
 
-	  return $value;
-     }
+		// If value isn't present in the select_options string, surrounded by CRLFs or CRs then it's not valid.
+		// We also allow for match at beginning/end of select_options, as well as optional spaces in the select_options string
+		// before and after the CRLF/CR that separate the options in the string.
+		if(!preg_match('/(^|[\r\n]) *' . preg_quote($value, '/') . ' *(:=|[\r\n]+|$)/', $field->select_options)) $value = '';
 
-     public function ___getConfigInputfields(Field $field) {
+		return $value;
+	 }
 
-	  $inputfields = parent::___getConfigInputfields($field);
-	  $f = $this->modules->get("InputfieldTextarea");
-	  $f->label = "Select Options";
-	  $f->attr('name', 'select_options');
-	  $f->attr('value', count($field->select_options) > 0 ? $field->select_options : implode("\r\n",self::$defaultOptionValues));
-	  $f->attr('rows', 5);
-	  $f->description = "The list of options that are available for this drop down";
-	  $f->notes = "Each option should be typed on it's own line. If you would like an option/label pair, use := to separate the values.  For instance 1:=Poor, 2:=Excellent. The value stored in the database would be the first part of the pair (1 and 2 respectively) and the latter would be displayed in the dropdown.";
-	  $inputfields->append($f);
-	  return $inputfields;
-     }
+	 public function ___getConfigInputfields(Field $fields) {
+
+		$inputfields = parent::___getConfigInputfields($fields);
+		
+		// list of options
+		$f = $this->modules->get("InputfieldTextarea");
+		$f->label = "Select Options";
+		$f->attr('name', 'select_options');
+		$f->attr('value', count($fields->select_options) > 0 ? $fields->select_options : implode("\r\n",self::$defaultOptionValues));
+		$f->attr('rows', 5);
+		$f->description = "The list of options that are available for this drop down";
+		$f->notes = "Each option should be typed on it's own line. If you would like an option/label pair, use := to separate the values.	For instance 1:=Poor, 2:=Excellent. The value stored in the database would be the first part of the pair (1 and 2 respectively) and the latter would be displayed in the dropdown.";
+		$inputfields->append($f);
+
+		return $inputfields;
+	 }
 
 }
