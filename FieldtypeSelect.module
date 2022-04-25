@@ -101,7 +101,7 @@ class FieldtypeSelect extends Fieldtype {
 		$f = $this->modules->get("InputfieldTextarea");
 		$f->label = "Select Options";
 		$f->attr('name', 'select_options');
-		$f->attr('value', count($fields->select_options) > 0 ? $fields->select_options : implode("\r\n",self::$defaultOptionValues));
+		$f->attr('value', strlen($fields->select_options) > 0 ? $fields->select_options : implode("\r\n",self::$defaultOptionValues));
 		$f->attr('rows', 5);
 		$f->description = "The list of options that are available for this drop down";
 		$f->notes = "Each option should be typed on it's own line. If you would like an option/label pair, use := to separate the values.	For instance 1:=Poor, 2:=Excellent. The value stored in the database would be the first part of the pair (1 and 2 respectively) and the latter would be displayed in the dropdown.";
