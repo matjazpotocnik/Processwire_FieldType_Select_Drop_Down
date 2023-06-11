@@ -10,15 +10,18 @@
  *
  * Module by Hani AbuGhazaleh
  * http://www.mmbarn.com
+ * https://github.com/Hani79/Processwire_FieldType_Select_Drop_Down
  *
  * Improvements suggested/provided by Adam Kiss, Ryan Cramer, & Nico
+ *
+ * Use https://processwire.com/docs/fields/select-options-fieldtype/ instead of this fieldtype
+ * Blog post: https://processwire.com/blog/posts/new-options-fieldtype-processwire-2.5.17/
  *
  * ProcessWire 2.x
  * Copyright (C) 2010 by Ryan Cramer
  * Licensed under GNU/GPL v2, see LICENSE.TXT
  *
- * http://www.processwire.com
- * http://www.ryancramer.com
+ * https://processwire.com
  *
  */
 
@@ -38,16 +41,19 @@ class FieldtypeSelect extends Fieldtype {
 	public static function getModuleInfo() {
 		return array(
 		'title' => 'Select',
-		'version' => 120,
+		'version' => 121,
 		'summary' => 'This Fieldtype stores a list of values from which to choose via a "select" input field.'
+		'author' => 'Hani AbuGhazaleh',
+		'href' => 'https://github.com/matjazpotocnik/Processwire_FieldType_Select_Drop_Down',
 		);
 	}
 
 	public function getInputfield(Page $page, Field $fields) {
 
 		$inputfield = $this->modules->get('InputfieldSelect');
-		
+
 		// split options by line
+		if($fields->select_options === null) $fields->select_options = '';
 		$options = explode("\n",$fields->select_options);
 
 		// add options to the input field
@@ -55,9 +61,9 @@ class FieldtypeSelect extends Fieldtype {
 			$valueLabel = explode(':=',$option);
 			if (count($valueLabel) == 1) { // if option/label pair *not* provided
 				// use sanitized value as value because whitespaces and special characters are not allowed
-				$value = $this->sanitizer->name(trim($valueLabel[0])); 
+				$value = $this->sanitizer->name(trim($valueLabel[0]));
 				// use given value as label
-				$label = trim($valueLabel[0]); 
+				$label = trim($valueLabel[0]);
 			} else if (count($valueLabel) == 2){ // if option/label pair provided
 				$value = trim($valueLabel[0]);
 				$label = trim($valueLabel[1]);
@@ -67,7 +73,7 @@ class FieldtypeSelect extends Fieldtype {
 				$inputfield->addOption((string) trim($value),(string) trim($label));
 			}
 		}
-		
+
 		return $inputfield;
 	}
 
@@ -78,9 +84,9 @@ class FieldtypeSelect extends Fieldtype {
 		$schema['keys']['data'] = 'FULLTEXT KEY `data` (`data`)';
 
 		return $schema;
-	 }
+	}
 
-	 public function sanitizeValue(Page $page, Field $field, $value) {
+	public function sanitizeValue(Page $page, Field $field, $value) {
 
 		// remove any leading/trailing whitespace
 		$value = trim($value);
@@ -91,23 +97,24 @@ class FieldtypeSelect extends Fieldtype {
 		if(!preg_match('/(^|[\r\n]) *' . preg_quote($value, '/') . ' *(:=|[\r\n]+|$)/', $field->select_options)) $value = '';
 
 		return $value;
-	 }
+	}
 
-	 public function ___getConfigInputfields(Field $fields) {
+	public function ___getConfigInputfields(Field $fields) {
 
 		$inputfields = parent::___getConfigInputfields($fields);
-		
+
 		// list of options
 		$f = $this->modules->get("InputfieldTextarea");
 		$f->label = "Select Options";
 		$f->attr('name', 'select_options');
-		$f->attr('value', strlen($fields->select_options) > 0 ? $fields->select_options : implode("\r\n",self::$defaultOptionValues));
+		$count = $fields->select_options === null ? 0 : strlen($fields->select_options);
+		$f->attr('value', $count > 0 ? $fields->select_options : implode("\r\n",self::$defaultOptionValues));
 		$f->attr('rows', 5);
 		$f->description = "The list of options that are available for this drop down";
 		$f->notes = "Each option should be typed on it's own line. If you would like an option/label pair, use := to separate the values.	For instance 1:=Poor, 2:=Excellent. The value stored in the database would be the first part of the pair (1 and 2 respectively) and the latter would be displayed in the dropdown.";
 		$inputfields->append($f);
 
 		return $inputfields;
-	 }
+	}
 
 }
