@@ -42,7 +42,7 @@ class FieldtypeSelect extends Fieldtype {
 		return array(
 		'title' => 'Select',
 		'version' => 121,
-		'summary' => 'This Fieldtype stores a list of values from which to choose via a "select" input field.'
+		'summary' => 'This Fieldtype stores a list of values from which to choose via a "select" input field.',
 		'author' => 'Hani AbuGhazaleh',
 		'href' => 'https://github.com/matjazpotocnik/Processwire_FieldType_Select_Drop_Down',
 		);
